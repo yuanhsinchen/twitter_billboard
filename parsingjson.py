@@ -4,19 +4,48 @@ sys.setdefaultencoding("utf-8")
 
 def main():
     parsetweets()
+    #parsehot100()
+
+def parsehot100():
+    f = open('track/20140503.json')
+    f1 = open('track/20140503.csv', 'wb')
+
+    for line in f:
+        line = line.strip()
+
+        try:
+            data = json.loads(line)
+        except ValueError as detail:
+            #sys.stderr.write(detail.__str__() + "\n")
+            continue
+        for i in range(len(data)):
+            f1.write(str(data[i]['fingerprint']))
+            f1.write(',')
+            f1.write(str(data[i]['song']))
+            f1.write(',')
+            f1.write(str(data[i]['rank']))
+            f1.write(',')
+            f1.write(str(data[i]['peak']))
+            f1.write(',')
+            f1.write(str(data[i]['weeks']))
+            f1.write('\n')
+    f1.close()
 
 def parsetweets():
-    f = open('../data/test.20140408-210403.json')
-
+    #f = open('../data/test.20140408-210403.json')
+    f = open('../data/test.' + sys.argv[1] + '.json')
+    url = open(sys.argv[2])
     track = []
-    url = open('urls_0412.txt')
     for line in url:
         track.append(line.strip('\n'))
     url.close()
 
-    f1 = open('fp.txt', 'w')
-
+    #file for tweets collection by fingerprint
+    f1 = open('features/tweets-' + sys.argv[1] + '.csv', 'w')
+    #file for number of sharing in tweets by fingerprint
+    f2 = open('features/sharing-' + sys.argv[1] + '.csv', 'w')
     url_tweet = {}
+    url_share = {}
     for line in f:
         line = line.strip()
 
@@ -35,13 +64,24 @@ def parsetweets():
                             url_tweet[fp] += ' ' + tweet
                         else:
                             url_tweet[fp] = '' + tweet
+                        if fp in url_share.keys():
+                            url_share[fp] += 1
+                        else:
+                            url_share[fp] = 1
     for i in track:
         if i in url_tweet:
             f1.write(i)
-            f1.write('\n')
-            url_tweet[i] = url_tweet[i].replace('\n', ' ')
+            f1.write(',')
+            url_tweet[i] = url_tweet[i].replace('\n', ' ').replace(',', ' ')
             f1.write(url_tweet[i])
             f1.write('\n')
+        if i in url_share:
+            f2.write(i)
+            f2.write(',')
+            f2.write(str(url_share[i]))
+            f2.write('\n')
+    f1.close()
+    f2.close()
 
 def jsontocsv():
     f = open('../data/test.20140408-210403.json')

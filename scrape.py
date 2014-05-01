@@ -16,11 +16,15 @@ import json
 s = "http://www.billboard.com/charts/hot-100"
 doc = lxml.html.parse(s)
 hot100 = []
+rank = 1
 for node in doc.xpath("//article/header"):
     hot = {}
     hot['song'] = ''.join(node.xpath("h1/text()")).strip()
     hot['singer'] = ''.join(node.xpath("p/a/text()")).strip()
     hot['weeks'] = int(''.join(node.xpath("ul/li[3]/text()")).strip())
+    hot['peak'] = int(''.join(node.xpath("ul[@class='chart_stats']/li[1]/text()")).strip())
+    hot['rank'] = rank
+    rank += 1
     hot100.append(hot)
 
 #top11-100
@@ -32,6 +36,9 @@ for i in range(1, 10):
         hot['song'] = ''.join(node.xpath("h1/text()")).strip()
         hot['singer'] = ''.join(node.xpath("p/a/text()")).strip()
         hot['weeks'] = int(''.join(node.xpath("ul/li[3]/text()")).strip())
+        hot['peak'] = int(''.join(node.xpath("ul[@class='chart_stats']/li[1]/text()")).strip())
+        hot['rank'] = rank
+        rank += 1
         hot100.append(hot)
 #YouTube fingerprints
 f = open('track/kw20140503.txt', 'wb')
